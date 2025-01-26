@@ -24,7 +24,9 @@ public class RedirectorTransformer implements ITransformationService {
         return Constants.MOD_ID;
     }
 
-    @Override public void initialize(IEnvironment environment) {}
+    @Override public void initialize(IEnvironment environment) {
+        Constants.LOG.info("Trying to initialize RedirectorForge CoreMod...");
+    }
     @Override
     public List<Resource> beginScanning(IEnvironment environment) {
         return List.of();
