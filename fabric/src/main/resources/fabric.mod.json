@@ -14,15 +14,14 @@
     "license": "${license}",
     "icon": "${mod_id}.png",
     "environment": "*",
+    "mixins": [
+        "redirector.fabric.mixins.json"
+    ],
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "com.leclowndu93150.redirector.RedirectorFabric"
         ]
     },
-    "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
-    ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
