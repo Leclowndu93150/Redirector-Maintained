@@ -1,6 +1,5 @@
 package com.leclowndu93150.redirector;
 
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -23,11 +22,6 @@ public class RedirectorMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return true;
-    }
-
-    @Override
     public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
 
     @Override
@@ -37,31 +31,25 @@ public class RedirectorMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-        try {
-            ClassWriter cw = new ClassWriter(0);
-            targetClass.accept(cw);
-            byte[] bytes = cw.toByteArray();
-
-            byte[] transformed = transformer.transform(null, targetClassName.replace('.', '/'), null, null, bytes);
-            if (transformed != null) {
-                ClassReader cr = new ClassReader(transformed);
-                ClassNode newNode = new ClassNode();
-                cr.accept(newNode, 0);
-
-                targetClass.version = newNode.version;
-                targetClass.access = newNode.access;
-                targetClass.name = newNode.name;
-                targetClass.signature = newNode.signature;
-                targetClass.superName = newNode.superName;
-                targetClass.interfaces = newNode.interfaces;
-                targetClass.fields = newNode.fields;
-                targetClass.methods = newNode.methods;
+        if ("java/lang/Enum".equals(targetClass.superName)) {
+            try {
+                ClassWriter cw = new ClassWriter(0);
+                targetClass.accept(cw);
+                byte[] transformed = transformer.transform(null, targetClassName, null, null, cw.toByteArray());
+                if (transformed != null) {
+                    Constants.LOG.info("Transformed enum class: {}", targetClassName);
+                }
+            } catch (Exception e) {
+                Constants.LOG.error("Failed transforming: {}", targetClassName, e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
+
+    @Override
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        return true;
+    }
 }
